@@ -1,0 +1,621 @@
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE LAB6
+OBJECT MODULE PLACED IN .\Objects\lab6.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE lab6.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\lab6
+                    -.lst) TABS(2) OBJECT(.\Objects\lab6.obj)
+
+line level    source
+
+   1          #include <REGX51.H>
+   2          #include <stdio.h>
+   3          
+   4          #define RS P1_0
+   5          #define RW P1_1
+   6          #define E  P1_2
+   7          #define DB P2
+   8          #define DBPORT P2
+   9          
+  10          char keypad(void);
+  11          void init(void);
+  12          void clock(void);
+  13          void Dater(void);
+  14          void state(void);
+  15          void Date_init(void);
+  16          void Time_init(void);
+  17          void LCD_CMD(char cmd);
+  18          void LCD_DATA(char data1);
+  19          void wrins(char instruction);
+  20          void display(char *string);
+  21          void wrdata(char d);  
+  22          void delayms(unsigned int time);
+  23          void DISP_Str(char addr1,char *str);
+  24          void DISP_Int(char addr1, int v1);
+  25          void RL_Str(char addr1,char *str,char offset);
+  26          void RL_Str2(char addr2,char *str2,char offest2);
+  27          void dd_d(void);
+  28          void dd_t(void);
+  29          void dd_ts(void);
+  30          void set_DT();
+  31          
+  32          int second0,second1; 
+  33          int minute0,minute1; 
+  34          int hour0,hour1;    
+  35          int day0,day1; 
+  36          int month0,month1; 
+  37          int year0,year1,year2,year3; 
+  38          int date; 
+  39          int small_mon,leap_year; 
+  40          int counter,cycle;
+  41          char aa;
+  42          int tt,yy,uu;
+  43          
+  44          main(){
+  45   1        init();
+  46   1        Date_init();
+  47   1        Time_init();
+  48   1        set_DT();
+  49   1        while(1){
+  50   2          if(keypad()==3)set_DT();
+  51   2          clock();
+  52   2          dd_d();
+  53   2          dd_t();
+  54   2          if(day0+day1*10==0)day0=1;
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 2   
+
+  55   2          if(month0+month1*10==0)month0=1;
+  56   2          delayms(1000);
+  57   2          
+  58   2        }
+  59   1      }
+  60          void set_DT(){
+  61   1        int p=1;
+  62   1        int out=1;
+  63   1        while(1){
+  64   2          aa=keypad();
+  65   2          if(aa==4){
+  66   3            p++;
+  67   3          }else if(aa==6){
+  68   3            p--;
+  69   3          }else if(p>14){
+  70   3            p=1;
+  71   3          }else if(p<1){
+  72   3            p=14;
+  73   3          }
+  74   2          if(p==1){
+  75   3            DISP_Str(0xcf," ");
+  76   3            if(aa==1){
+  77   4              second0++;
+  78   4              if(second0>9)second0=0;
+  79   4            }else if(aa==9){
+  80   4              second0--;
+  81   4              if(second0<0)second0=9;
+  82   4            }
+  83   3          }
+  84   2          else if(p==2){
+  85   3            DISP_Str(0xce," ");
+  86   3            if(aa==1){
+  87   4              second1++;
+  88   4              if(second1>5)second1=0;
+  89   4            }else if(aa==9){
+  90   4              second1--;
+  91   4              if(second1<0)second1=5;
+  92   4            }
+  93   3          }
+  94   2          else if(p==3){
+  95   3            DISP_Str(0xcc," ");
+  96   3            if(aa==1){
+  97   4              minute0++;
+  98   4              if(minute0>9)minute0=0;
+  99   4            }else if(aa==9){
+ 100   4              minute0--;
+ 101   4              if(minute0<0)minute0=9;
+ 102   4            }
+ 103   3          }
+ 104   2          else if(p==4){
+ 105   3            DISP_Str(0xcb," ");
+ 106   3            if(aa==1){
+ 107   4              minute1++;
+ 108   4              if(minute1>5)minute1=0;
+ 109   4            }else if(aa==9){
+ 110   4              minute1--;
+ 111   4              if(minute1<0)minute1=5;
+ 112   4            }
+ 113   3          }
+ 114   2          else if(p==5){
+ 115   3            DISP_Str(0xc9," ");
+ 116   3            if(aa==1){
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 3   
+
+ 117   4              hour0++;
+ 118   4              if(hour1==2){
+ 119   5                if(hour0>3)hour0=0;
+ 120   5              }else if(hour0>9)hour0=0;
+ 121   4            }else if(aa==9){
+ 122   4              hour0--;
+ 123   4              if(hour0<0)hour0=9;
+ 124   4            }
+ 125   3          }
+ 126   2          else if(p==6){
+ 127   3            DISP_Str(0xc8," ");
+ 128   3            if(aa==1){
+ 129   4              hour1++;
+ 130   4              if(hour1>2)hour1=0;
+ 131   4            }else if(aa==9){
+ 132   4              hour1--;
+ 133   4              if(hour1<0)hour1=2;
+ 134   4            }
+ 135   3          }
+ 136   2          else if(p==7){
+ 137   3            DISP_Str(0x8e," ");
+ 138   3            if(aa==1){
+ 139   4              day0++;
+ 140   4              if(day0>9)day0=0;
+ 141   4            }else if(aa==9){
+ 142   4              day0--;
+ 143   4              if(day0<1)day0=0;
+ 144   4            }
+ 145   3          }
+ 146   2          else if(p==8){
+ 147   3            DISP_Str(0x8d," ");
+ 148   3            if(aa==1){
+ 149   4              day1++;
+ 150   4              if(day1>3)day1=0;
+ 151   4            }else if(aa==9){
+ 152   4              day1--;
+ 153   4              if(day1<0)day1=3;
+ 154   4            }
+ 155   3          }
+ 156   2          else if(p==9){
+ 157   3            DISP_Str(0x8b," ");
+ 158   3            if(aa==1){
+ 159   4              month0++;
+ 160   4              if(month0>9)month0=1;
+ 161   4            }else if(aa==9){
+ 162   4              month0--;
+ 163   4              if(month0<0)month0=9;
+ 164   4            }
+ 165   3          }
+ 166   2          else if(p==10){
+ 167   3            DISP_Str(0x8a," ");
+ 168   3            if(aa==1){
+ 169   4              month1++;
+ 170   4              if(month1>1)month1=0;
+ 171   4            }else if(aa==9){
+ 172   4              month1--;
+ 173   4              if(month1<0)month1=1;
+ 174   4            }
+ 175   3          }
+ 176   2          else if(p==11){
+ 177   3            DISP_Str(0x88," ");
+ 178   3            if(aa==1){
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 4   
+
+ 179   4              year0++;
+ 180   4              if(year0>9)year0=0;
+ 181   4            }else if(aa==9){
+ 182   4              year0--;
+ 183   4              if(year0<0)year0=9;
+ 184   4            }
+ 185   3          }
+ 186   2          else if(p==12){
+ 187   3            DISP_Str(0x87," ");
+ 188   3            if(aa==1){
+ 189   4              year1++;
+ 190   4              if(year1>9)year1=0;
+ 191   4            }else if(aa==9){
+ 192   4              year1--;
+ 193   4              if(year1<0)year1=9;
+ 194   4            }
+ 195   3          }
+ 196   2          else if(p==13){
+ 197   3            DISP_Str(0x86," ");
+ 198   3            if(aa==1){
+ 199   4              year2++;
+ 200   4              if(year2>9)year2=0;
+ 201   4            }else if(aa==9){
+ 202   4              year2--;
+ 203   4              if(year2<0)year2=9;
+ 204   4            }
+ 205   3          }
+ 206   2          else if(p==14){
+ 207   3            DISP_Str(0x85," ");
+ 208   3            if(aa==1){
+ 209   4              year3++;
+ 210   4              if(year3>9)year3=0;
+ 211   4            }else if(aa==9){
+ 212   4              year3--;
+ 213   4              if(year3<0)year3=9;
+ 214   4            }
+ 215   3          }
+ 216   2          tt=day0+day1*10;
+ 217   2          yy=month0+month1*10;
+ 218   2          uu=year3*1000+year2*100+year1*10+year0;
+ 219   2          if(hour1*10+hour0>23){
+ 220   3            hour1=2;
+ 221   3            hour0=3;
+ 222   3          }
+ 223   2          if(day1*10+day0>31){
+ 224   3            day1=3;
+ 225   3            day0=1;
+ 226   3          }
+ 227   2          if(month1*10+month0>12){
+ 228   3            month1=1;
+ 229   3            month0=2;
+ 230   3          }
+ 231   2          if(uu%400==0||(uu%4==0&&uu%100!=0)){
+ 232   3            //29day
+ 233   3          }else{
+ 234   3            //28day
+ 235   3          }
+ 236   2          delayms(200);
+ 237   2          dd_ts();
+ 238   2          delayms(200);
+ 239   2          if(keypad()==7){
+ 240   3            break;
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 5   
+
+ 241   3          }
+ 242   2        }
+ 243   1      }
+ 244          void dd_d(){
+ 245   1        DISP_Str(0x80,"A.D.");
+ 246   1        DISP_Int(0x85,year3);
+ 247   1        DISP_Int(0x86,year2);
+ 248   1        DISP_Int(0x87,year1);
+ 249   1        DISP_Int(0x88,year0);
+ 250   1        DISP_Str(0x89,"Y");
+ 251   1        DISP_Int(0x8a,month1);
+ 252   1        DISP_Int(0x8b,month0);
+ 253   1        DISP_Str(0x8c,"M");
+ 254   1        DISP_Int(0x8d,day1);
+ 255   1        DISP_Int(0x8e,day0);
+ 256   1        DISP_Str(0x8f,"D");
+ 257   1        if(((year3*1000+year2*100+year1*10)/1000)==0)DISP_Str(0x85," ");
+ 258   1        if(((year3*1000+year2*100+year1*10)/100)==0)DISP_Str(0x86," ");
+ 259   1        if(((year3*1000+year2*100+year1*10)/10)==0)DISP_Str(0x87," ");
+ 260   1        if(month1==0)DISP_Str(0x8a," ");
+ 261   1        if(day1==0)DISP_Str(0x8d," ");
+ 262   1      }
+ 263          void dd_t(){
+ 264   1        if((hour0 + hour1 * 10)==0){
+ 265   2          DISP_Str(0xc0,"A.M.");
+ 266   2          DISP_Int(0xC8,1);
+ 267   2          DISP_Int(0xC9,2);
+ 268   2        }
+ 269   1        if((hour0 + hour1 * 10)<12&&(hour0 + hour1 * 10)>0){
+ 270   2          DISP_Str(0xc0,"A.M.");
+ 271   2          DISP_Int(0xC8,hour1);
+ 272   2          DISP_Int(0xC9,hour0);
+ 273   2        }
+ 274   1        if((hour0 + hour1 * 10)==12){
+ 275   2          DISP_Str(0xc0,"P.M.");
+ 276   2          DISP_Int(0xC8,hour1);
+ 277   2          DISP_Int(0xC9,hour0);
+ 278   2        }
+ 279   1        if((hour0 + hour1 * 10)>12){
+ 280   2          DISP_Str(0xc0,"P.M.");
+ 281   2          DISP_Int(0xC8,hour1 - 1);
+ 282   2          DISP_Int(0xC9,hour0 - 2);
+ 283   2        }
+ 284   1        DISP_Str(0xCA,":");
+ 285   1        DISP_Int(0xCB,minute1);
+ 286   1        DISP_Int(0xCC,minute0);
+ 287   1        DISP_Str(0xCD,":");
+ 288   1        DISP_Int(0xCE,second1);
+ 289   1        DISP_Int(0xCF,second0);
+ 290   1      }
+ 291          void dd_ts(){
+ 292   1      //  if(day1==3&&day0>1)day0=0;
+ 293   1      //  if(month1==1&&month0>2)month0=0;
+ 294   1        
+ 295   1        DISP_Str(0x80,"A.D.");
+ 296   1        DISP_Int(0x85,year3);
+ 297   1        DISP_Int(0x86,year2);
+ 298   1        DISP_Int(0x87,year1);
+ 299   1        DISP_Int(0x88,year0);
+ 300   1        DISP_Str(0x89,"Y");
+ 301   1        DISP_Int(0x8a,month1);
+ 302   1        DISP_Int(0x8b,month0);
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 6   
+
+ 303   1        DISP_Str(0x8c,"M");
+ 304   1        DISP_Int(0x8d,day1);
+ 305   1        DISP_Int(0x8e,day0);
+ 306   1        DISP_Str(0x8f,"D");
+ 307   1        if((hour0 + hour1 * 10)<12){
+ 308   2          DISP_Str(0xc0,"A.M.");
+ 309   2        }
+ 310   1        if((hour0 + hour1 * 10)==12){
+ 311   2          DISP_Str(0xc0,"P.M.");
+ 312   2        }
+ 313   1        if((hour0 + hour1 * 10)>12){
+ 314   2          DISP_Str(0xc0,"P.M.");
+ 315   2        }
+ 316   1        DISP_Int(0xC8,hour1);
+ 317   1        DISP_Int(0xC9,hour0);
+ 318   1        DISP_Str(0xCA,":");
+ 319   1        DISP_Int(0xCB,minute1);
+ 320   1        DISP_Int(0xCC,minute0);
+ 321   1        DISP_Str(0xCD,":");
+ 322   1        DISP_Int(0xCE,second1);
+ 323   1        DISP_Int(0xCF,second0);
+ 324   1      }
+ 325          void Date_init(){ 
+ 326   1        date = 1; 
+ 327   1        day0 = 8; 
+ 328   1        day1 = 0; 
+ 329   1        month0 = 1; 
+ 330   1        month1 = 0; 
+ 331   1        year0 = 8; 
+ 332   1        year1 = 1; 
+ 333   1        year2 = 0; 
+ 334   1        year3 = 2; 
+ 335   1      }
+ 336          void Time_init(){ 
+ 337   1        second0 = 8; 
+ 338   1        second1 = 5; 
+ 339   1        minute0 = 9; 
+ 340   1        minute1 = 5; 
+ 341   1        hour0 = 2; 
+ 342   1        hour1 = 1; 
+ 343   1        counter = 0; 
+ 344   1      } 
+ 345          void clock(){
+ 346   1        second0++;
+ 347   1        if (second0 > 9) 
+ 348   1        { 
+ 349   2          second0 = 0 ;
+ 350   2          second1++;
+ 351   2          if (second1 > 5) 
+ 352   2          { 
+ 353   3            second1 = 0; 
+ 354   3            minute0++; 
+ 355   3            if (minute0 > 9) 
+ 356   3            { 
+ 357   4              minute0 = 0; 
+ 358   4              minute1++; 
+ 359   4              if (minute1 > 5) 
+ 360   4              {
+ 361   5                minute1 = 0; 
+ 362   5                hour0++; 
+ 363   5                if (hour0 == 4 && hour1 == 2) 
+ 364   5                { 
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 7   
+
+ 365   6                  hour0 = hour1 = 0; 
+ 366   6                  Dater();
+ 367   6                } 
+ 368   5                else if (hour0 > 9) 
+ 369   5                { 
+ 370   6                  hour0 = 0; 
+ 371   6                  hour1++; 
+ 372   6                } 
+ 373   5              } 
+ 374   4            } 
+ 375   3          } 
+ 376   2        } 
+ 377   1      }
+ 378          void Dater(){ 
+ 379   1        state();          
+ 380   1        date=(date+1)%7; 
+ 381   1        day0++;
+ 382   1        switch(day0) 
+ 383   1        { 
+ 384   2        case 10: 
+ 385   2          { 
+ 386   3            if(day1 == 2 && month0 == 2 && month1 == 0 ) //???,?2?30????3?1?
+ 387   3            {
+ 388   4              day0 = 1; 
+ 389   4              day1 = 0; 
+ 390   4              month0++; 
+ 391   4            } 
+ 392   3            else //?????10?1 
+ 393   3            { 
+ 394   4              day0 = 0; 
+ 395   4              day1++; 
+ 396   4            } 
+ 397   3          } 
+ 398   2          break; 
+ 399   2        case 1: 
+ 400   2          { 
+ 401   3            if(day1 == 3 && small_mon) //??31???????1?,??+1 
+ 402   3            { 
+ 403   4              day0 = 1; 
+ 404   4              day1 = 0; 
+ 405   4              month0++; 
+ 406   4            } 
+ 407   3          } 
+ 408   2          break; 
+ 409   2        case 2: 
+ 410   2          { 
+ 411   3            if(day1 == 3) 
+ 412   3            { 
+ 413   4              day0 = 1; 
+ 414   4              day1 = 0; 
+ 415   4              month0++; 
+ 416   4            } 
+ 417   3          } 
+ 418   2          break; 
+ 419   2        case 9:
+ 420   2          { 
+ 421   3            if(day1 == 2 && !leap_year && month0 == 2 && month1 == 0) //???,?2?29???3?1?
+ 422   3            { 
+ 423   4              day0 = 1; 
+ 424   4              day1 = 0; 
+ 425   4              month0++; 
+ 426   4            } 
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 8   
+
+ 427   3          } 
+ 428   2          break; 
+ 429   2        default: 
+ 430   2          break; 
+ 431   2        } 
+ 432   1        switch(month0) 
+ 433   1        { 
+ 434   2        case 10: 
+ 435   2          { 
+ 436   3            month0 = 0; 
+ 437   3            month1++; 
+ 438   3          } 
+ 439   2          break; 
+ 440   2        case 3: 
+ 441   2          { 
+ 442   3            if(month1 == 1) 
+ 443   3            { 
+ 444   4              month0 = 1; 
+ 445   4              month1 = 0; 
+ 446   4              year0++; 
+ 447   4            } 
+ 448   3          } 
+ 449   2          break ; 
+ 450   2        } 
+ 451   1        if(year0 > 9)
+ 452   1        { 
+ 453   2          year0 = 0; 
+ 454   2          year1++; 
+ 455   2          if(year1 > 9) 
+ 456   2          { 
+ 457   3            year1 = 0; 
+ 458   3            year2++; 
+ 459   3            if(year2 > 9) 
+ 460   3            { 
+ 461   4              year2 = 0; 
+ 462   4              year3++; 
+ 463   4              if(year3 > 9) 
+ 464   4                year3 = 0; 
+ 465   4            } 
+ 466   3          } 
+ 467   2        } 
+ 468   1      } 
+ 469          void state(){ 
+ 470   1        switch(month0) 
+ 471   1        { 
+ 472   2        case 1: 
+ 473   2          if(month1 == 1) //??11?,????
+ 474   2            small_mon = 1; 
+ 475   2          else //??1?,?????
+ 476   2          small_mon = 0; 
+ 477   2          break; 
+ 478   2        case 4: 
+ 479   2        case 6: 
+ 480   2        case 9: 
+ 481   2          small_mon = 1;
+ 482   2          break; 
+ 483   2        default: 
+ 484   2          small_mon = 0; 
+ 485   2          break; 
+ 486   2        } 
+ 487   1        if((year3 * 1000 + year2 * 100 + year1 * 10 + year0) % 100 == 0) 
+ 488   1        { 
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 9   
+
+ 489   2          if((year3 * 1000 + year2 * 100 + year1 * 10 + year0) % 400 == 0)
+ 490   2            leap_year = 1; 
+ 491   2        }else if((year3 * 1000 + year2 * 100 + year1 * 10 + year0) % 4 == 0) 
+ 492   1          leap_year = 1; 
+ 493   1        else 
+ 494   1          leap_year = 0; 
+ 495   1      }
+ 496          char keypad(void){
+ 497   1        char key=0xff;
+ 498   1      
+ 499   1        P0=0xef;
+ 500   1        if(P0_0==0)  key=0;
+ 501   1        if(P0_1==0)  key=1;
+ 502   1        if(P0_2==0)  key=2;
+ 503   1        if(P0_3==0)  key=3;
+ 504   1      
+ 505   1        P0=0xdf;
+ 506   1        if(P0_0==0)  key=4;
+ 507   1        if(P0_1==0)  key=5;
+ 508   1        if(P0_2==0)  key=6;
+ 509   1        if(P0_3==0)  key=7;
+ 510   1      
+ 511   1        P0=0xbf;
+ 512   1        if(P0_0==0)  key=8;
+ 513   1        if(P0_1==0)  key=9;
+ 514   1        if(P0_2==0)  key=10;
+ 515   1        if(P0_3==0)  key=11;
+ 516   1      
+ 517   1        P0=0x7f;
+ 518   1        if(P0_0==0)  key=12;
+ 519   1        if(P0_1==0)  key=13;
+ 520   1        if(P0_2==0)  key=14;
+ 521   1        if(P0_3==0)  key=15;
+ 522   1      
+ 523   1        return key;
+ 524   1      
+ 525   1      } 
+ 526          void DISP_Str(char addr1,char *str){
+ 527   1        LCD_CMD(addr1);
+ 528   1        while(*str != 0)
+ 529   1          LCD_DATA(*str++);
+ 530   1      }
+ 531          void DISP_Int(char addr1, int v1){
+ 532   1        LCD_CMD(addr1);
+ 533   1        LCD_DATA(v1+0x30);
+ 534   1      }
+ 535          void LCD_CMD(char cmd){
+ 536   1        char i;
+ 537   1        DBPORT=cmd;
+ 538   1        RS=0; RW=0; E=1;
+ 539   1        for(i=0;i<40;i++);
+ 540   1        RS=0; RW=0; E=0;
+ 541   1      }
+ 542          void LCD_DATA(char data1){
+ 543   1        char i;
+ 544   1        DBPORT=data1;
+ 545   1        RS=1; RW=0; E=1;
+ 546   1        for(i=0;i<40;i++);
+ 547   1        RS=1; RW=0; E=0;
+ 548   1      }
+ 549          void init(void){
+ 550   1        delayms(30);
+C51 COMPILER V9.57.0.0   LAB6                                                              01/15/2018 13:00:02 PAGE 10  
+
+ 551   1        wrins(0x38);
+ 552   1        wrins(0x38);
+ 553   1        wrins(0x38);
+ 554   1        wrins(0x38);
+ 555   1        wrins(0x08);
+ 556   1        wrins(0x01);
+ 557   1        wrins(0x06);
+ 558   1        wrins(0x0c);
+ 559   1      }
+ 560          void wrins(char instruction){
+ 561   1        RS=0;
+ 562   1        RW=0;
+ 563   1        E=0;
+ 564   1        delayms(1);
+ 565   1        E=1;
+ 566   1        DB=instruction;
+ 567   1        delayms(1);
+ 568   1        E=0;
+ 569   1        delayms(8);
+ 570   1      }
+ 571          void delayms(unsigned int time){
+ 572   1        unsigned int n;
+ 573   1        while(time>0)
+ 574   1         {
+ 575   2           n=120;
+ 576   2           while(n>0)  n--;
+ 577   2           time--;
+ 578   2         }
+ 579   1      }  
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3790    ----
+   CONSTANT SIZE    =     25    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     45      10
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

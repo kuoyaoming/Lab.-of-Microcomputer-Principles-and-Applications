@@ -1,0 +1,45 @@
+C51 COMPILER V9.57.0.0   LAB2                                                              01/13/2018 11:07:20 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE LAB2
+OBJECT MODULE PLACED IN .\Objects\lab2.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE lab2.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\lab2
+                    -.lst) TABS(2) OBJECT(.\Objects\lab2.obj)
+
+line level    source
+
+   1          #include<reg51.h>
+   2          #include<intrins.h>
+   3          #define RR(x)_cror_(x,1);
+   4          void delayms(unsigned int time);
+   5          void main()
+   6          {
+   7   1        P2=0x0f;
+   8   1        while(1){
+   9   2          P2=RR(P2);
+  10   2          delayms(500);
+  11   2        }
+  12   1      }
+  13          void delayms(unsigned int time){
+  14   1        unsigned int n;
+  15   1        while(time>0)
+  16   1         {
+  17   2           n=120;
+  18   2           while(n>0)  n--;
+  19   2           time--;
+  20   2         }
+  21   1      }  
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     55    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

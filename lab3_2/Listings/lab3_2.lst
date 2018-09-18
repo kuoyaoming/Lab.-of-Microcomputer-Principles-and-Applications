@@ -1,0 +1,154 @@
+C51 COMPILER V9.57.0.0   LAB3_2                                                            01/13/2018 15:42:53 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE LAB3_2
+OBJECT MODULE PLACED IN .\Objects\lab3_2.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE lab3_2.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\la
+                    -b3_2.lst) TABS(2) OBJECT(.\Objects\lab3_2.obj)
+
+line level    source
+
+   1          #include <REGX51.H>
+   2          void delayms(unsigned int time);
+   3          char keypad(void);
+   4          void gg(unsigned int a);
+   5          unsigned char code seg7[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,//0~9
+   6                                     0x89,0xbf,0x6e,0x9d,0xf6,0xff};//+,-,*,/,=," "
+   7          unsigned int dd[]={15,15,15,15,15,15,15,15,15,15};
+   8          
+   9          int ans;
+  10          
+  11          main(){
+  12   1        unsigned int i,j,k,m=1;
+  13   1        while(1){
+  14   2          P1=0;
+  15   2          for(i=0;i<8;i++){
+  16   3            j=dd[i];
+  17   3            P2=~seg7[j];
+  18   3            delayms(4);
+  19   3            P1++;
+  20   3          }
+  21   2          k=keypad();
+  22   2          switch(m){
+  23   3            case 1:
+  24   3              if(k>=0&&k<10){
+  25   4                dd[0]=k;
+  26   4                ans=k;
+  27   4                m++;
+  28   4              }
+  29   3              break;
+  30   3            case 2:
+  31   3              if(k>9&&k<14){
+  32   4                dd[1]=k;
+  33   4                m++;
+  34   4              }
+  35   3              break;
+  36   3            case 3:
+  37   3              if(k>=0&&k<10){
+  38   4                dd[2]=k;
+  39   4                m++;
+  40   4              }
+  41   3              break;
+  42   3            case 4:
+  43   3              if(k>9&&k<14){
+  44   4                dd[3]=k;
+  45   4                m++;
+  46   4              }
+  47   3              break;
+  48   3            case 5:
+  49   3              if(k>=0&&k<10){
+  50   4                dd[4]=k;
+  51   4                m++;
+  52   4              }
+  53   3              break;
+  54   3            case 6:
+C51 COMPILER V9.57.0.0   LAB3_2                                                            01/13/2018 15:42:53 PAGE 2   
+
+  55   3              if(k==15){
+  56   4                dd[5]=14;
+  57   4                gg(1);
+  58   4                gg(3);
+  59   4                if(ans>9){
+  60   5                  dd[6]=ans/10;
+  61   5                  dd[7]=ans%10;
+  62   5                }else{
+  63   5                  dd[7]=ans;
+  64   5                }
+  65   4                m++;
+  66   4              }
+  67   3              break;      
+  68   3          }
+  69   2        }
+  70   1      }
+  71          void delayms(unsigned int time){
+  72   1        unsigned int n;
+  73   1        while(time>0)
+  74   1         {
+  75   2           n=120;
+  76   2           while(n>0)  n--;
+  77   2           time--;
+  78   2         }
+  79   1      }
+  80          void gg(unsigned int a){
+  81   1      
+  82   1        switch(dd[a]){
+  83   2          case 10:
+  84   2            ans=ans+dd[a+1];
+  85   2            break;
+  86   2          case 11:
+  87   2            ans=ans-dd[a+1];
+  88   2            break;
+  89   2          case 12:
+  90   2            ans=ans*dd[a+1];
+  91   2            break;
+  92   2          case 13:
+  93   2            ans=ans/dd[a+1];
+  94   2            break;
+  95   2        }
+  96   1      }
+  97          char keypad(void){
+  98   1        char key=0xff;
+  99   1      
+ 100   1        P0=0xef;
+ 101   1        if(P0_0==0)  key=0;
+ 102   1        if(P0_1==0)  key=1;
+ 103   1        if(P0_2==0)  key=2;
+ 104   1        if(P0_3==0)  key=3;
+ 105   1      
+ 106   1        P0=0xdf;
+ 107   1        if(P0_0==0)  key=4;
+ 108   1        if(P0_1==0)  key=5;
+ 109   1        if(P0_2==0)  key=6;
+ 110   1        if(P0_3==0)  key=7;
+ 111   1      
+ 112   1        P0=0xbf;
+ 113   1        if(P0_0==0)  key=8;
+ 114   1        if(P0_1==0)  key=9;
+ 115   1        if(P0_2==0)  key=10;
+ 116   1        if(P0_3==0)  key=11;
+C51 COMPILER V9.57.0.0   LAB3_2                                                            01/13/2018 15:42:53 PAGE 3   
+
+ 117   1      
+ 118   1        P0=0x7f;
+ 119   1        if(P0_0==0)  key=12;
+ 120   1        if(P0_1==0)  key=13;
+ 121   1        if(P0_2==0)  key=14;
+ 122   1        if(P0_3==0)  key=15;
+ 123   1      
+ 124   1        return key;
+ 125   1      
+ 126   1      } 
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    653    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     22       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
